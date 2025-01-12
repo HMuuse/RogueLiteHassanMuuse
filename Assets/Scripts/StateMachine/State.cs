@@ -4,11 +4,11 @@ using UnityEngine;
 
 public abstract class State
 {
-    protected PlayerController player;
+    protected Entity entity;
 
-    public State(PlayerController player)
+    public State(Entity entity)
     {
-        this.player = player;
+        this.entity = entity;
     }
 
     public virtual void Enter() { }

@@ -1,12 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Entity
 {
-    public StateMachine machine;
-    public Animator playerAnimator;
-    public Rigidbody2D playerRigidbody;
+    public EventHandler OnGrounded;
+    public EventHandler OnWallSlide;
+    public EventHandler OnDoubleJump;
 
     [SerializeField]
     private LayerMask groundLayer;
@@ -14,54 +16,74 @@ public class PlayerController : MonoBehaviour
     private LayerMask wallLayer;
     [SerializeField]
     private float runSpeed = 5f;
-    [SerializeField]
-    private float jumpForce = 10f;
-    [SerializeField]
-    private float wallJumpForce = 15f;
 
     [SerializeField]
     private Transform groundCheck;
     [SerializeField]
     private Transform wallCheck;
 
-    public bool CanDoubleJump { get; set; } = true;
+    private float horizontalInput;
+    private bool isFacingRight = true;
 
-    private void Start()
+    public override void Start()
     {
-        machine = new StateMachine();
+        base.Start();
 
         // Initialize states and set the initial state
         machine.ChangeState(new IdleState(this));
     }
 
-    private void Update()
+    public override void Update()
     {
+        horizontalInput = Input.GetAxis("Horizontal");
+
+        if (rb.velocity.x > 0 && !isFacingRight)
+        {
+            Flip();
+        }
+        else if (rb.velocity.x < 0 && isFacingRight)
+        {
+            Flip();
+        }
+
         machine.Update();
+        Debug.Log(IsGrounded());
     }
 
-    public bool IsGrounded()
+    private void Flip()
+    {
+        // Toggle the facing direction
+        isFacingRight = !isFacingRight;
+
+        // Flip the player by scaling
+        Vector3 currentScale = transform.localScale;
+        currentScale.x *= -1;
+        transform.localScale = currentScale;
+    }
+
+    public override bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
     }
 
-    public bool IsWalled()
+    public override bool IsWalled()
     {
         return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
     }
 
-    public void Move(float horizontalInput)
+    public override void Move(float horizontalInput)
     {
-        playerRigidbody.velocity = new Vector2(horizontalInput * runSpeed, playerRigidbody.velocity.y);
+        rb.velocity = new Vector2(horizontalInput * runSpeed, rb.velocity.y);
     }
 
-    public void Jump()
+    public override float GetHorizontalInput()
     {
-        playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpForce);
+        return horizontalInput;
     }
 
-    public bool IsFacingRight()
+    public override void Jump()
     {
-        return transform.localScale.x > 0;
+        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
     }
 }
 
