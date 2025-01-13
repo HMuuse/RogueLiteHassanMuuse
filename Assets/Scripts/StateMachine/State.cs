@@ -5,13 +5,24 @@ using UnityEngine;
 public abstract class State
 {
     protected Entity entity;
+    protected State parentState;
 
-    public State(Entity entity)
+    public State(Entity entity, State parentState = null)
     {
         this.entity = entity;
+        this.parentState = parentState;
     }
 
-    public virtual void Enter() { }
-    public virtual void Update() { }
-    public virtual void Exit() { }
+    public virtual void Enter()
+    {
+        parentState?.Enter();
+    }
+    public virtual void Update()
+    {
+        parentState?.Update();
+    }
+    public virtual void Exit()
+    {
+        parentState?.Exit();
+    }
 }

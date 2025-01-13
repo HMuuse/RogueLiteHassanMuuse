@@ -8,12 +8,18 @@ public class RunState : State
 
     public override void Enter()
     {
-        entity.animator.SetBool("isRunning", true);
+        entity.animator.Play("Run");
     }
 
     public override void Update()
     {
-        float horizontalInput = entity.GetHorizontalInput();
+        float horizontalInput = 0f;
+
+        if (entity is PlayerController player)
+        {
+            // Get input specifically for the player
+            horizontalInput = player.GetHorizontalInput();
+        }
 
         if (Mathf.Abs(horizontalInput) < 0.1f)
         {
@@ -35,6 +41,5 @@ public class RunState : State
 
     public override void Exit()
     {
-        entity.animator.SetBool("isRunning", false);
     }
 }

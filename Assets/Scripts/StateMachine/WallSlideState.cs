@@ -10,7 +10,7 @@ public class WallSlideState : State
 
     public override void Enter()
     {
-        entity.animator.SetBool("isWallSliding", true);
+        entity.animator.Play("WallJump");
     }
 
     public override void Update()
@@ -35,6 +35,6 @@ public class WallSlideState : State
 
     public override void Exit()
     {
-        entity.animator.SetBool("isWallSliding", false);
+
     }
 }

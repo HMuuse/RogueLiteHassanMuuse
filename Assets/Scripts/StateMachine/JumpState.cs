@@ -8,19 +8,25 @@ public class JumpState : State
 
     public override void Enter()
     {
-        entity.animator.SetBool("isJumping", true);
+        entity.animator.Play("Jump");
         entity.Jump();
     }
 
     public override void Update()
     {
-        float horizontalInput = entity.GetHorizontalInput();
+        float horizontalInput = 0f;
+
+        if (entity is PlayerController player)
+        {
+            // Get input specifically for the player
+            horizontalInput = player.GetHorizontalInput();
+        }
 
         if (entity.IsGrounded() && entity.rb.velocity.y <= 0)
         {
             entity.machine.ChangeState(new IdleState(entity));
         }
-        else if (entity.IsWalled() && !entity.IsGrounded() && entity.GetHorizontalInput() != 0f)
+        else if (entity.IsWalled() && !entity.IsGrounded() && horizontalInput != 0f)
         {
             entity.machine.ChangeState(new WallSlideState(entity));
         }
@@ -38,6 +44,6 @@ public class JumpState : State
 
     public override void Exit()
     {
-        entity.animator.SetBool("isJumping", false);
+
     }
 }

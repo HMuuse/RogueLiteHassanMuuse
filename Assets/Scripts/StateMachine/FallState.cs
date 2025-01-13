@@ -9,12 +9,18 @@ public class FallState : State
 
     public override void Enter()
     {
-        entity.animator.SetBool("isFalling", true);
+        entity.animator.Play("Fall");
     }
 
     public override void Update()
     {
-        float horizontalInput = entity.GetHorizontalInput();
+        float horizontalInput = 0f;
+
+        if (entity is PlayerController player)
+        {
+            // Get input specifically for the player
+            horizontalInput = player.GetHorizontalInput();
+        }
 
         if (entity.IsWalled() && !entity.IsGrounded())
         {
@@ -33,7 +39,7 @@ public class FallState : State
 
     public override void Exit()
     {
-        entity.animator.SetBool("isFalling", false);
+
     }
 }
 

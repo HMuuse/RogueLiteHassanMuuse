@@ -6,22 +6,6 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : Entity
 {
-    public EventHandler OnGrounded;
-    public EventHandler OnWallSlide;
-    public EventHandler OnDoubleJump;
-
-    [SerializeField]
-    private LayerMask groundLayer;
-    [SerializeField]
-    private LayerMask wallLayer;
-    [SerializeField]
-    private float runSpeed = 5f;
-
-    [SerializeField]
-    private Transform groundCheck;
-    [SerializeField]
-    private Transform wallCheck;
-
     private float horizontalInput;
     private bool isFacingRight = true;
 
@@ -47,7 +31,6 @@ public class PlayerController : Entity
         }
 
         machine.Update();
-        Debug.Log(IsGrounded());
     }
 
     private void Flip()
@@ -73,10 +56,10 @@ public class PlayerController : Entity
 
     public override void Move(float horizontalInput)
     {
-        rb.velocity = new Vector2(horizontalInput * runSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
     }
 
-    public override float GetHorizontalInput()
+    public float GetHorizontalInput()
     {
         return horizontalInput;
     }
@@ -85,5 +68,9 @@ public class PlayerController : Entity
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
     }
-}
 
+    public override void Die()
+    {
+        
+    }
+}

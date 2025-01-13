@@ -8,7 +8,7 @@ public class DoubleJumpState : State
 
     public override void Enter()
     {
-        entity.animator.SetTrigger("doubleJump");
+        entity.animator.Play("DoubleJump");
         entity.Jump();
     }
 

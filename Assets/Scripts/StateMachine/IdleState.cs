@@ -8,18 +8,24 @@ public class IdleState : State
 
     public override void Enter()
     {
-
+        entity.animator.Play("Idle");
     }
 
     public override void Update()
     {
-        float horizontalInput = entity.GetHorizontalInput();
+        float horizontalInput = 0f;
 
-        if (Mathf.Abs(horizontalInput) > 0.1f)
+        if (entity is PlayerController player)
+        {
+            // Get input specifically for the player
+            horizontalInput = player.GetHorizontalInput();
+        }
+
+        if (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(entity.rb.velocity.x) > 0.1f)
         {
             entity.machine.ChangeState(new RunState(entity));
         }
-        else if (entity.IsWalled() && !entity.IsGrounded() && entity.GetHorizontalInput() != 0f)
+        else if (entity.IsWalled() && !entity.IsGrounded() && horizontalInput != 0f)
         {
             entity.machine.ChangeState(new WallSlideState(entity));
         }
