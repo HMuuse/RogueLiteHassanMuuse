@@ -25,4 +25,9 @@ public abstract class State
     {
         parentState?.Exit();
     }
+
+    public virtual void OverrideState()
+    {
+
+    }
 }

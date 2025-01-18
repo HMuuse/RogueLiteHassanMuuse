@@ -24,25 +24,26 @@ public class NPCController : Entity
         // Flip the NPC based on movement direction
         if (horizontalInput > 0 && !IsFacingRight())
         {
-            Flip();
+            Flip(horizontalInput);
         }
         else if (horizontalInput < 0 && IsFacingRight())
         {
-            Flip();
+            Flip(horizontalInput);
         }
     }
+
+    public override void Chase(Transform destination)
+    {
+        // Calculate direction towards the target
+        Vector2 direction = (destination.position - transform.position).normalized;
+
+        rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+    }
+
 
     public override bool IsFacingRight()
     {
         return transform.localScale.x > 0;
-    }
-
-    // Flip the NPC's facing direction
-    private void Flip()
-    {
-        Vector3 localScale = transform.localScale;
-        localScale.x *= -1;
-        transform.localScale = localScale;
     }
 
     public override void Die()
@@ -53,13 +54,16 @@ public class NPCController : Entity
     public override void Start()
     {
         base.Start();
-        machine.ChangeState(new AIState(this));
+        machine.ChangeState(new IdleState(this));
     }
 
     public override void Update()
     {
         base.Update();
 
-        Debug.Log(IsWalled());
+
+        Collider2D collider = Physics2D.OverlapCircle(groundCheck.position, 5f, enemyLayer);
+
+        target = collider != null ? collider.transform : null;
     }
 }

@@ -9,7 +9,6 @@ public class StateMachine
 
     public void ChangeState(State newState)
     {
-        Debug.Log($"Changing state from {currentState?.GetType().Name} to {newState.GetType().Name}");
         currentState?.Exit();
         currentState = newState;
         currentState?.Enter();

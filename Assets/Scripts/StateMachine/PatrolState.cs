@@ -4,8 +4,7 @@ public class PatrolState : State
 {
     private float patrolDirection = 1f;
 
-    public PatrolState(Entity entity, State parentState) : base(entity, parentState ?? throw new System.ArgumentNullException(nameof(parentState)))
-    { }
+    public PatrolState(Entity entity, State parentState = null) : base(entity, parentState){ }
 
     public override void Enter()
     {

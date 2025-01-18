@@ -5,13 +5,13 @@ public class AvoidObstacleState : State
     private float avoidDuration = 1f; // Time to spend in this state
     private float elapsedTime = 0f;
 
-    public AvoidObstacleState(Entity entity, State parentState = null) : base(entity, parentState) { }
+    public AvoidObstacleState(Entity entity, State parentState) : base(entity, parentState) { }
 
     public override void Enter()
     {
         Debug.Log("Entering AvoidObstacleState");
-        entity.Move(entity.IsFacingRight() ? -1f : 1f); // Move away from the obstacle
-        elapsedTime = 0f; // Reset timer
+        entity.Move(entity.IsFacingRight() ? -1f : 1f);
+        elapsedTime = 0f;
     }
 
     public override void Update()
