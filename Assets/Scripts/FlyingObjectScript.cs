@@ -11,7 +11,7 @@ public class FlyingObjectScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Destroy(gameObject, 10f);
+        Destroy(gameObject, 7.5f);
     }
 
     // Update is called once per frame
@@ -21,6 +21,13 @@ public class FlyingObjectScript : MonoBehaviour
         newPosition.x -= obstacleFlySpeed * Time.deltaTime;
 
         transform.position = newPosition;
+    }
 
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RemoveSpawnedObject(gameObject);
+        }
     }
 }

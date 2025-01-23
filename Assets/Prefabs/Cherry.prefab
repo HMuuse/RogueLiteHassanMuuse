@@ -153,6 +153,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 668d0ae710267354983fc6f166ed4337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 2
+  score: 100
   fruitAnimator: {fileID: 1510613772851779625}
   circleCollider: {fileID: 8608464397604317922}
 --- !u!114 &5345496832184841816

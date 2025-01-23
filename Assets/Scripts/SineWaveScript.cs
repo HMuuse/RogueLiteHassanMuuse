@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BatScript : MonoBehaviour
+public class SineWaveScript : MonoBehaviour
 {
     [SerializeField]
     private float speed = 2.0f;
@@ -16,6 +16,8 @@ public class BatScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Destroy(gameObject, 7.5f);
+
         startingY = transform.position.y;
     }
 
@@ -28,6 +30,14 @@ public class BatScript : MonoBehaviour
         float newY = startingY + Mathf.Sin(Time.time * frequency) * amplitude;
 
         transform.position = new Vector3(newX, newY, transform.position.z);
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RemoveSpawnedObject(gameObject);
+        }
     }
 }
 

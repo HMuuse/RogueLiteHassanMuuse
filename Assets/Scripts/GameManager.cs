@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class GameManagerScript : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+
     [SerializeField]
     private List<GameObject> objectsTospawn;
     [SerializeField]
@@ -13,6 +15,14 @@ public class GameManagerScript : MonoBehaviour
     private List<GameObject> fruitsToSpawn;
     [SerializeField]
     private List<Transform> spawnPoints;
+
+    [SerializeField]
+    private List<GameObject> spawnedObjects;
+
+    [SerializeField]
+    private GameObject gameOverScreen;
+    [SerializeField]
+    private TextMeshProUGUI gameOverText;
 
     private float objectDelay = 1f;
     private float enemyDelay = 0.75f;
@@ -28,9 +38,19 @@ public class GameManagerScript : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI scoreText;
 
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
     void Start()
     {
-
+        PlayerController.Instance.OnPlayerDeath += PlayerController_OnPlayerDeath;
     }
 
     void Update()
@@ -64,7 +84,9 @@ public class GameManagerScript : MonoBehaviour
             }
 
             // Instantiate the selected object
-            Instantiate(currentObjectToSpawn);
+            GameObject spawnedObject = Instantiate(currentObjectToSpawn);
+
+            spawnedObjects.Add(spawnedObject);
 
             // Increment the cycle count
             cycleCount++;
@@ -96,7 +118,9 @@ public class GameManagerScript : MonoBehaviour
             }
 
             // Instantiate the selected enemy at the chosen spawn point
-            Instantiate(currentEnemyToSpawn, currentSpawnPoint.position, currentSpawnPoint.rotation);
+            GameObject spawnedEnemy = Instantiate(currentEnemyToSpawn, currentSpawnPoint.position, currentSpawnPoint.rotation);
+
+            spawnedObjects.Add(spawnedEnemy);
         }
     }
 
@@ -127,17 +151,55 @@ public class GameManagerScript : MonoBehaviour
             // Instantiate the selected fruit at the chosen spawn point
             GameObject fruit = Instantiate(currentFruitToSpawn, currentSpawnPoint.position, currentSpawnPoint.rotation);
 
+            spawnedObjects.Add(fruit);
+
             // Subscribe to the OnFruitPickedUp event
             FruitScript fruitScript = fruit.GetComponent<FruitScript>();
             fruitScript.OnFruitPickedUp += FruitScript_OnFruitPickedUp;
         }
     }
 
-    private void FruitScript_OnFruitPickedUp(object sender, int scoreToObtain)
+    public void RemoveSpawnedObject(GameObject gameObject)
     {
-        score += scoreToObtain;
+        if (spawnedObjects.Contains(gameObject))
+        {
+            spawnedObjects.Remove(gameObject);
+        }
     }
 
+    private void FruitScript_OnFruitPickedUp(object sender, FruitScript.FruitPickedUpEventArgs args)
+    {
+        // Update the score
+        score += args.Score;
+        
+        switch (args.Type)
+        {
+            case FruitScript.FruitType.Apple:
+
+                PlayerController.Instance.EnableShield();
+                break;
+            case FruitScript.FruitType.Cherry:
+
+                foreach (GameObject obj in spawnedObjects)
+                {
+                    Destroy(obj);
+                }
+                break;
+            case FruitScript.FruitType.Banana:
+
+                PlayerController.Instance.SlowDownTime(0.5f, 5f);
+                break;
+        }
+    }
+
+    private void PlayerController_OnPlayerDeath(object sender, EventArgs e)
+    {
+        Time.timeScale = 0;
+        // Show the game over screen
+        gameOverScreen.gameObject.SetActive(true);
+        gameOverText.text = $"Game Over!\nYour Score: {score}";
+    }
+    
     private bool IsSpawnPointOccupied(Vector2 spawnPosition)
     {
         float radius = 1.0f;
@@ -145,5 +207,10 @@ public class GameManagerScript : MonoBehaviour
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(spawnPosition, radius);
 
         return hitColliders.Length > 0;
+    }
+
+    public int GetScore()
+    {
+        return score;
     }
 }

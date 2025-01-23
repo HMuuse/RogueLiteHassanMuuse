@@ -5,9 +5,30 @@ using UnityEngine;
 
 public class FruitScript : MonoBehaviour
 {
-    public EventHandler<int> OnFruitPickedUp;
+    public EventHandler<FruitPickedUpEventArgs> OnFruitPickedUp;
 
-    public int scoreWorth = 50;
+    public class FruitPickedUpEventArgs : EventArgs
+    {
+        public int Score { get; }
+        public FruitType Type { get; }
+
+        public FruitPickedUpEventArgs(int score, FruitType type)
+        {
+            Score = score;
+            Type = type;
+        }
+    }
+
+    public enum FruitType
+    {
+        Apple,
+        Banana,
+        Cherry
+    }
+
+    public FruitType type;
+
+    public int score = 50;
 
     [SerializeField]
     private Animator fruitAnimator;
@@ -18,10 +39,19 @@ public class FruitScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            OnFruitPickedUp?.Invoke(this, scoreWorth);
+            var eventArgs = new FruitPickedUpEventArgs(score, type);
+            OnFruitPickedUp?.Invoke(this, eventArgs);
             fruitAnimator.Play("Collected");
             Destroy(circleCollider);
             Destroy(gameObject, 0.5f);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RemoveSpawnedObject(gameObject);
         }
     }
 }

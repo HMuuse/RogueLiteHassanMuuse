@@ -6,11 +6,28 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : Entity
 {
+    public static PlayerController Instance { get; private set; }
+
     public EventHandler OnPickUpPowerUp;
+    public EventHandler OnPlayerDeath;
 
     private float horizontalInput;
     private int gravityScale = 1;
-    public bool isRotated = false;
+    private bool isRotated = false;
+
+    [SerializeField]
+    private GameObject shield;
+    private bool isShielded;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     public override void Start()
     {
@@ -77,7 +94,52 @@ public class PlayerController : Entity
 
     public override void Die()
     {
+        OnPlayerDeath?.Invoke(this, EventArgs.Empty);
         Destroy(gameObject);
+    }
+
+    public void EnableShield()
+    {
+        Debug.Log("Shield enabled!");
+        shield.SetActive(true);
+        isShielded = true;
+
+        StopCoroutine(nameof(DisableShieldAfterDelay));
+
+        StartCoroutine(DisableShieldAfterDelay(5f));
+    }
+
+    private IEnumerator DisableShieldAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Disable the shield if it is still active
+        if (isShielded)
+        {
+            DisableShield();
+        }
+    }
+
+    public void DisableShield()
+    {
+        shield.SetActive(false);
+        isShielded = false;
+    }
+
+    public void SlowDownTime(float timeScale, float duration)
+    {
+        Time.timeScale = timeScale;
+
+        StopCoroutine(nameof(ResetTimeScaleAfterDelay));
+
+        StartCoroutine(ResetTimeScaleAfterDelay(duration));
+    }
+
+    private IEnumerator ResetTimeScaleAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        Time.timeScale = 1f;
+        Debug.Log("Time scale reset.");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -89,7 +151,14 @@ public class PlayerController : Entity
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Die();
+            if (!isShielded)
+            {
+                Die();
+            }
+            else
+            {
+                Destroy(collision.gameObject);
+            }
         }
     }
 }
